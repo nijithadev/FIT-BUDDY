@@ -1,0 +1,161 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f7f6;
+    color: #222;
+    line-height: 1.6;
+}
+
+
+.container {
+    width: 100%;
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+}
+
+
+.header {
+    text-align: center;
+    padding: 35px 20px;
+}
+
+
+.header h1 {
+    font-size: 40px;
+    margin-bottom: 8px;
+}
+
+
+.header p {
+    font-size: 18px;
+    color: #666;
+}
+
+
+.card,
+.result-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+
+.card h2,
+.result-card h2 {
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+
+.form-row .form-group {
+    flex: 1;
+}
+
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+
+input,
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    background: white;
+}
+
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #555;
+}
+
+
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #222;
+    color: white;
+}
+
+
+button:hover {
+    opacity: 0.85;
+}
+
+
+.error {
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background: #ffe5e5;
+    color: #b00020;
+}
+
+
+.result {
+    white-space: pre-wrap;
+    background: #f7f7f7;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #777;
+    font-size: 14px;
+}
+
+
+@media (max-width: 600px) {
+
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+
+    .header h1 {
+        font-size: 30px;
+    }
+
+
+    .card,
+    .result-card {
+        padding: 20px;
+    }
+
+}
