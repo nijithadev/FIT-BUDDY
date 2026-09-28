@@ -1,157 +1,111 @@
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+import streamlit as st
+from google import genai
 
-from dotenv import load_dotenv
-from openai import OpenAI
-
-import os
-
-
-# =========================================================
-# 1. LOAD ENVIRONMENT VARIABLES
-# =========================================================
-
-# Always load .env from the same folder as this app.py file.
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ENV_FILE = os.path.join(BASE_DIR, ".env")
-
-load_dotenv(ENV_FILE)
-
-api_key = os.getenv("OPENAI_API_KEY")
-
-# Create the OpenAI client only when a key is available.
-client = OpenAI(api_key=api_key) if api_key else None
-
-
-# =========================================================
-# 2. CREATE FASTAPI APPLICATION
-# =========================================================
-
-app = FastAPI(
-    title="Fit Buddy AI",
-    description="Generative AI Fitness Assistant",
-    version="1.0"
+# -----------------------------
+# Page Configuration
+# -----------------------------
+st.set_page_config(
+    page_title="Fit Buddy AI",
+    page_icon="💪",
+    layout="centered"
 )
 
+# -----------------------------
+# Gemini API
+# -----------------------------
+try:
+    GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
+    client = genai.Client(api_key=GEMINI_API_KEY)
+except Exception:
+    client = None
 
-# =========================================================
-# 3. CONNECT STATIC FOLDER
-# =========================================================
+# -----------------------------
+# Title
+# -----------------------------
+st.title("💪 Fit Buddy AI")
+st.write("Your AI-powered fitness and wellness assistant")
 
-app.mount(
-    "/static",
-    StaticFiles(directory=os.path.join(BASE_DIR, "static")),
-    name="static"
+st.divider()
+
+# -----------------------------
+# User Input
+# -----------------------------
+st.subheader("Enter Your Details")
+
+name = st.text_input("Name")
+
+age = st.number_input(
+    "Age",
+    min_value=10,
+    max_value=100,
+    value=19
 )
 
-
-# =========================================================
-# 4. CONNECT JINJA2 TEMPLATES
-# =========================================================
-
-templates = Jinja2Templates(
-    directory=os.path.join(BASE_DIR, "templates")
+gender = st.selectbox(
+    "Gender",
+    ["Female", "Male", "Other"]
 )
 
+weight = st.number_input(
+    "Weight (kg)",
+    min_value=1.0,
+    max_value=300.0,
+    value=50.0
+)
 
-# =========================================================
-# 5. HOME / DASHBOARD PAGE
-# =========================================================
+height = st.number_input(
+    "Height (cm)",
+    min_value=50.0,
+    max_value=250.0,
+    value=160.0
+)
 
-@app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
+goal = st.selectbox(
+    "Fitness Goal",
+    [
+        "Weight Gain",
+        "Weight Loss",
+        "Muscle Building",
+        "General Fitness",
+        "Improve Strength"
+    ]
+)
 
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={
-            "request": request,
-            "result": None,
-            "error": None
-        }
-    )
+activity_level = st.selectbox(
+    "Activity Level",
+    [
+        "Beginner / Low Activity",
+        "Moderately Active",
+        "Highly Active"
+    ]
+)
 
+food_preference = st.selectbox(
+    "Food Preference",
+    [
+        "Vegetarian",
+        "Non-Vegetarian",
+        "Vegan"
+    ]
+)
 
-# =========================================================
-# 6. GENERATE FITNESS PLAN
-# =========================================================
+# -----------------------------
+# Generate Plan
+# -----------------------------
+if st.button("✨ Generate My Fitness Plan"):
 
-@app.post("/generate", response_class=HTMLResponse)
-async def generate_plan(
-    request: Request,
+    if not name:
+        st.warning("Please enter your name.")
 
-    name: str = Form(...),
-    age: int = Form(...),
-    gender: str = Form(...),
-    weight: float = Form(...),
-    height: float = Form(...),
-    goal: str = Form(...),
-    activity_level: str = Form(...),
-    food_preference: str = Form(...)
-):
-
-    # -----------------------------------------------------
-    # Validate Age
-    # -----------------------------------------------------
-
-    if age < 10 or age > 100:
-
-        return templates.TemplateResponse(
-            request=request,
-            name="index.html",
-            context={
-                "request": request,
-                "result": None,
-                "error": "Please enter a valid age between 10 and 100."
-            }
+    elif client is None:
+        st.error(
+            "Gemini API key is not configured. "
+            "Please add GEMINI_API_KEY in Streamlit Secrets."
         )
 
+    else:
 
-    # -----------------------------------------------------
-    # Validate Weight and Height
-    # -----------------------------------------------------
-
-    if weight <= 0 or height <= 0:
-
-        return templates.TemplateResponse(
-            request=request,
-            name="index.html",
-            context={
-                "request": request,
-                "result": None,
-                "error": "Height and weight must be greater than zero."
-            }
-        )
-
-
-    # -----------------------------------------------------
-    # Check OpenAI API Key
-    # -----------------------------------------------------
-
-    if client is None:
-
-        return templates.TemplateResponse(
-            request=request,
-            name="index.html",
-            context={
-                "request": request,
-                "result": None,
-                "error": (
-                    "OpenAI API key not found. "
-                    "Please create a .env file beside app.py "
-                    "and add OPENAI_API_KEY=your_key."
-                )
-            }
-        )
-
-
-    # =====================================================
-    # 7. CREATE AI PROMPT
-    # =====================================================
-
-    prompt = f"""
+        prompt = f"""
 You are Fit Buddy AI, a friendly fitness and wellness assistant.
 
 Create a simple beginner-friendly fitness and wellness plan
@@ -168,7 +122,7 @@ Fitness Goal: {goal}
 Activity Level: {activity_level}
 Food Preference: {food_preference}
 
-Create the response using the following sections:
+Create the response using these sections:
 
 1. Welcome Message
 
@@ -206,57 +160,21 @@ Do not suggest extreme weight loss or weight gain methods.
 Mention that professional advice should be taken when necessary.
 """
 
+        with st.spinner("Creating your personalized plan..."):
 
-    # =====================================================
-    # 8. SEND REQUEST TO OPENAI
-    # =====================================================
+            try:
 
-    try:
+                response = client.models.generate_content(
+                    model="gemini-3.8-flash",
+                    contents=prompt
+                )
 
-        response = client.responses.create(
-            model="gpt-5.6-luna",
-            input=prompt
-        )
+                result = response.text
 
-        result = response.output_text
+                st.success("Your Fit Buddy plan is ready! 🎉")
 
+                st.markdown(result)
 
-    except Exception as e:
+            except Exception as e:
 
-        return templates.TemplateResponse(
-            request=request,
-            name="index.html",
-            context={
-                "request": request,
-                "result": None,
-                "error": f"AI Error: {str(e)}"
-            }
-        )
-
-
-    # =====================================================
-    # 9. DISPLAY AI RESULT
-    # =====================================================
-
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={
-            "request": request,
-            "result": result,
-            "error": None
-        }
-    )
-
-
-# =========================================================
-# 10. HEALTH CHECK
-# =========================================================
-
-@app.get("/health")
-async def health():
-
-    return {
-        "status": "success",
-        "message": "Fit Buddy AI is running successfully"
-    }
+                st.error(f"Gemini AI Error: {e}")
