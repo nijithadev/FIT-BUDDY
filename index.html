@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Fit Buddy AI</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header class="header">
+            <h1>Fit Buddy AI</h1>
+            <p>Your Personal AI Fitness Assistant</p>
+        </header>
+
+        <main>
+
+            <section class="card">
+
+                <h2>Create Your Fitness Plan</h2>
+
+                {% if error %}
+                <div class="error">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form action="/generate" method="post">
+
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            placeholder="Enter your name"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="age">Age</label>
+                            <input
+                                type="number"
+                                id="age"
+                                name="age"
+                                min="10"
+                                max="100"
+                                placeholder="Age"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+
+                            <select id="gender" name="gender" required>
+                                <option value="">Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="weight">Weight (kg)</label>
+
+                            <input
+                                type="number"
+                                id="weight"
+                                name="weight"
+                                step="0.1"
+                                placeholder="Example: 60"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="height">Height (cm)</label>
+
+                            <input
+                                type="number"
+                                id="height"
+                                name="height"
+                                step="0.1"
+                                placeholder="Example: 165"
+                                required
+                            >
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="goal">Fitness Goal</label>
+
+                        <select id="goal" name="goal" required>
+
+                            <option value="">
+                                Select your goal
+                            </option>
+
+                            <option value="Weight Loss">
+                                Weight Loss
+                            </option>
+
+                            <option value="Weight Gain">
+                                Weight Gain
+                            </option>
+
+                            <option value="Muscle Building">
+                                Muscle Building
+                            </option>
+
+                            <option value="General Fitness">
+                                General Fitness
+                            </option>
+
+                            <option value="Improve Stamina">
+                                Improve Stamina
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="activity_level">
+                            Activity Level
+                        </label>
+
+                        <select
+                            id="activity_level"
+                            name="activity_level"
+                            required
+                        >
+
+                            <option value="">
+                                Select activity level
+                            </option>
+
+                            <option value="Beginner">
+                                Beginner
+                            </option>
+
+                            <option value="Lightly Active">
+                                Lightly Active
+                            </option>
+
+                            <option value="Moderately Active">
+                                Moderately Active
+                            </option>
+
+                            <option value="Very Active">
+                                Very Active
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="food_preference">
+                            Food Preference
+                        </label>
+
+                        <select
+                            id="food_preference"
+                            name="food_preference"
+                            required
+                        >
+
+                            <option value="">
+                                Select food preference
+                            </option>
+
+                            <option value="Vegetarian">
+                                Vegetarian
+                            </option>
+
+                            <option value="Non-Vegetarian">
+                                Non-Vegetarian
+                            </option>
+
+                            <option value="Vegan">
+                                Vegan
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <button type="submit">
+                        Generate My Fitness Plan
+                    </button>
+
+                </form>
+
+            </section>
+
+
+            {% if result %}
+
+            <section class="result-card">
+
+                <h2>Your AI Fitness Plan</h2>
+
+                <div class="result">
+                    {{ result }}
+                </div>
+
+            </section>
+
+            {% endif %}
+
+
+        </main>
+
+        <footer>
+
+            <p>
+                Fit Buddy AI | Generative AI Fitness Assistant
+            </p>
+
+            <p>
+                General wellness information only.
+            </p>
+
+        </footer>
+
+    </div>
+
+</body>
+
+</html>
